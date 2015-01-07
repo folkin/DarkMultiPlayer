@@ -25,10 +25,10 @@ namespace DarkMultiPlayerServer
                 Directory.CreateDirectory(LogFolder);
             }
 
-            if (level >= Settings.settingsStore.logLevel)
+            if (level >= Settings.settingsStore.Settings.logLevel)
             {
                 string output;
-                if (Settings.settingsStore.useUTCTimeInLog)
+                if (Settings.settingsStore.Settings.useUTCTimeInLog)
                 {
                     output = "[" + DateTime.UtcNow.ToString("HH:mm:ss") + "][" + level.ToString() + "] : " + message;
                 }

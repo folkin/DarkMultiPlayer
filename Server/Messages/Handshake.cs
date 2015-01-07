@@ -102,7 +102,7 @@ namespace DarkMultiPlayerServer.Messages
                 {
                     reserveKick = true;
                 }
-                if (playerName == Settings.settingsStore.consoleIdentifier)
+                if (playerName == Settings.settingsStore.Settings.consoleIdentifier)
                 {
                     reserveKick = true;
                 }
@@ -170,7 +170,7 @@ namespace DarkMultiPlayerServer.Messages
 
             if (handshakeReponse == HandshakeReply.HANDSHOOK_SUCCESSFULLY)
             {
-                if (ClientHandler.GetActiveClientCount() >= Settings.settingsStore.maxPlayers)
+                if (ClientHandler.GetActiveClientCount() >= Settings.settingsStore.Settings.maxPlayers)
                 {
                     handshakeReponse = HandshakeReply.SERVER_FULL;
                     reason = "Server is full";
@@ -179,7 +179,7 @@ namespace DarkMultiPlayerServer.Messages
 
             if (handshakeReponse == HandshakeReply.HANDSHOOK_SUCCESSFULLY)
             {
-                if (Settings.settingsStore.whitelisted && !WhitelistSystem.fetch.IsWhitelisted(client.playerName))
+                if (Settings.settingsStore.Settings.whitelisted && !WhitelistSystem.fetch.IsWhitelisted(client.playerName))
                 {
                     handshakeReponse = HandshakeReply.NOT_WHITELISTED;
                     reason = "You are not on the whitelist";
@@ -238,9 +238,9 @@ namespace DarkMultiPlayerServer.Messages
                 mw.Write<string>(Common.PROGRAM_VERSION);
                 if (response == 0)
                 {
-                    mw.Write<bool>(Settings.settingsStore.compressionEnabled);
-                    mw.Write<int>((int)Settings.settingsStore.modControl);
-                    if (Settings.settingsStore.modControl != ModControlMode.DISABLED)
+                    mw.Write<bool>(Settings.settingsStore.Settings.compressionEnabled);
+                    mw.Write<int>((int)Settings.settingsStore.Settings.modControl);
+                    if (Settings.settingsStore.Settings.modControl != ModControlMode.DISABLED)
                     {
                         if (!File.Exists(Server.modFile))
                         {

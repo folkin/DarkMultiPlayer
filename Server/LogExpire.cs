@@ -24,10 +24,10 @@ namespace DarkMultiPlayerServer
             foreach (string logFile in logFiles)
             {
                 //Check if the expireScreenshots setting is enabled
-                if (Settings.settingsStore.expireLogs > 0)
+                if (Settings.settingsStore.Settings.expireLogs > 0)
                 {
                     //If the file is older than a day, delete it
-                    if (File.GetCreationTime(logFile).AddDays(Settings.settingsStore.expireLogs) < DateTime.Now)
+                    if (File.GetCreationTime(logFile).AddDays(Settings.settingsStore.Settings.expireLogs) < DateTime.Now)
                     {
                         DarkLog.Debug("Deleting saved log '" + logFile + "', reason: Expired!");
                         try

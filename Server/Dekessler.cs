@@ -68,10 +68,10 @@ namespace DarkMultiPlayerServer
         public static void CheckTimer()
         {
             //0 or less is disabled.
-            if (Settings.settingsStore.autoDekessler > 0)
+            if (Settings.settingsStore.Settings.autoDekessler > 0)
             {
                 //Run it on server start or if the nuke time has elapsed.
-                if (((Server.serverClock.ElapsedMilliseconds - lastDekesslerTime) > (Settings.settingsStore.autoDekessler * 60 * 1000)) || lastDekesslerTime == 0)
+                if (((Server.serverClock.ElapsedMilliseconds - lastDekesslerTime) > (Settings.settingsStore.Settings.autoDekessler * 60 * 1000)) || lastDekesslerTime == 0)
                 {
                     lastDekesslerTime = Server.serverClock.ElapsedMilliseconds;
                     RunDekessler("");

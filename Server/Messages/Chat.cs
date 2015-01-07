@@ -16,7 +16,7 @@ namespace DarkMultiPlayerServer.Messages
             using (MessageWriter mw = new MessageWriter())
             {
                 mw.Write<int>((int)ChatMessageType.PRIVATE_MESSAGE);
-                mw.Write<string>(Settings.settingsStore.consoleIdentifier);
+                mw.Write<string>(Settings.settingsStore.Settings.consoleIdentifier);
                 mw.Write<string>(client.playerName);
                 mw.Write(messageText);
                 newMessage.data = mw.GetMessageBytes();
@@ -31,7 +31,7 @@ namespace DarkMultiPlayerServer.Messages
             using (MessageWriter mw = new MessageWriter())
             {
                 mw.Write<int>((int)ChatMessageType.CHANNEL_MESSAGE);
-                mw.Write<string>(Settings.settingsStore.consoleIdentifier);
+                mw.Write<string>(Settings.settingsStore.Settings.consoleIdentifier);
                 //Global channel
                 mw.Write<string>("");
                 mw.Write(messageText);
@@ -47,7 +47,7 @@ namespace DarkMultiPlayerServer.Messages
             using (MessageWriter mw = new MessageWriter())
             {
                 mw.Write<int>((int)ChatMessageType.CHANNEL_MESSAGE);
-                mw.Write<string>(Settings.settingsStore.consoleIdentifier);
+                mw.Write<string>(Settings.settingsStore.Settings.consoleIdentifier);
                 // Channel
                 mw.Write<string>(channel);
                 mw.Write(messageText);
@@ -160,7 +160,7 @@ namespace DarkMultiPlayerServer.Messages
                         {
                             string toPlayer = mr.Read<string>();
                             string message = mr.Read<string>();
-                            if (toPlayer != Settings.settingsStore.consoleIdentifier)
+                            if (toPlayer != Settings.settingsStore.Settings.consoleIdentifier)
                             {
                                 ClientObject findClient = ClientHandler.GetClientByName(toPlayer);
                                 if (findClient != null)

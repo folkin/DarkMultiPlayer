@@ -15,11 +15,11 @@ namespace DarkMultiPlayerServer.Messages
         public static void HandleScreenshotLibrary(ClientObject client, byte[] messageData)
         {
             string screenshotDirectory = Path.Combine(Server.universeDirectory, "Screenshots");
-            if (Settings.settingsStore.screenshotDirectory != "")
+            if (Settings.settingsStore.Settings.screenshotDirectory != "")
             {
-                if (Directory.Exists(Settings.settingsStore.screenshotDirectory))
+                if (Directory.Exists(Settings.settingsStore.Settings.screenshotDirectory))
                 {
-                    screenshotDirectory = Settings.settingsStore.screenshotDirectory;
+                    screenshotDirectory = Settings.settingsStore.Settings.screenshotDirectory;
                 }
             }
             if (!Directory.Exists(screenshotDirectory))
@@ -36,7 +36,7 @@ namespace DarkMultiPlayerServer.Messages
                 {
                     case ScreenshotMessageType.SCREENSHOT:
                         {
-                            if (Settings.settingsStore.screenshotsPerPlayer > -1)
+                            if (Settings.settingsStore.Settings.screenshotsPerPlayer > -1)
                             {
                                 string playerScreenshotDirectory = Path.Combine(screenshotDirectory, fromPlayer);
                                 if (!Directory.Exists(playerScreenshotDirectory))
@@ -49,9 +49,9 @@ namespace DarkMultiPlayerServer.Messages
                                 byte[] screenshotData = mr.Read<byte[]>();
 
                                 File.WriteAllBytes(screenshotFile, screenshotData);
-                                if (Settings.settingsStore.screenshotsPerPlayer != 0)
+                                if (Settings.settingsStore.Settings.screenshotsPerPlayer != 0)
                                 {
-                                    while (Directory.GetFiles(playerScreenshotDirectory).Length > Settings.settingsStore.screenshotsPerPlayer)
+                                    while (Directory.GetFiles(playerScreenshotDirectory).Length > Settings.settingsStore.Settings.screenshotsPerPlayer)
                                     {
                                         string[] currentFiles = Directory.GetFiles(playerScreenshotDirectory);
                                         string deleteFile = currentFiles[0];

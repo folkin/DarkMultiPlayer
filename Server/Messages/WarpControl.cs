@@ -108,7 +108,7 @@ namespace DarkMultiPlayerServer.Messages
                             using (MessageWriter mw = new MessageWriter())
                             {
                                 mw.Write<int>((int)WarpMessageType.RELOCK_SUBSPACE);
-                                mw.Write<string>(Settings.settingsStore.consoleIdentifier);
+                                mw.Write<string>(Settings.settingsStore.Settings.consoleIdentifier);
                                 mw.Write<int>(reportedSubspace);
                                 mw.Write<long>(subspaces[reportedSubspace].serverClock);
                                 mw.Write<double>(subspaces[reportedSubspace].planetTime);
@@ -172,7 +172,7 @@ namespace DarkMultiPlayerServer.Messages
 
         public static void SendSetSubspace(ClientObject client)
         {
-            if (!Settings.settingsStore.keepTickingWhileOffline && ClientHandler.GetClients().Length == 1)
+            if (!Settings.settingsStore.Settings.keepTickingWhileOffline && ClientHandler.GetClients().Length == 1)
             {
                 DarkLog.Debug("Reverting server time to last player connection");
                 long currentTime = DateTime.UtcNow.Ticks;
@@ -184,7 +184,7 @@ namespace DarkMultiPlayerServer.Messages
                 }
             }
             int targetSubspace = -1;
-            if (Settings.settingsStore.sendPlayerToLatestSubspace || !playerSubspace.ContainsKey(client.playerName))
+            if (Settings.settingsStore.Settings.sendPlayerToLatestSubspace || !playerSubspace.ContainsKey(client.playerName))
             {
                 DarkLog.Debug("Sending " + client.playerName + " to the latest subspace " + targetSubspace);
                 targetSubspace = GetLatestSubspace();

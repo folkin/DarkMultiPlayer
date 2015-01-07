@@ -89,8 +89,8 @@ namespace DarkMultiPlayerServer
         {
             try
             {
-                IPAddress bindAddress = IPAddress.Parse(Settings.settingsStore.address);
-                TCPServer = new TcpListener(new IPEndPoint(bindAddress, Settings.settingsStore.port));
+                IPAddress bindAddress = IPAddress.Parse(Settings.settingsStore.Settings.address);
+                TCPServer = new TcpListener(new IPEndPoint(bindAddress, Settings.settingsStore.Settings.port));
                 try
                 {
                     if (System.Net.Sockets.Socket.OSSupportsIPv6)
@@ -487,7 +487,7 @@ namespace DarkMultiPlayerServer
                     Server.playerCount = GetActiveClientCount();
                     Server.players = GetActivePlayerNames();
                     DarkLog.Debug("Online players is now: " + Server.playerCount + ", connected: " + clients.Count);
-                    if (!Settings.settingsStore.keepTickingWhileOffline && clients.Count == 0)
+                    if (!Settings.settingsStore.Settings.keepTickingWhileOffline && clients.Count == 0)
                     {
                         Messages.WarpControl.HoldSubspace();
                     }
