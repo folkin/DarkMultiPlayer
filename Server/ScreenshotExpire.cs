@@ -9,9 +9,9 @@ namespace DarkMultiPlayerServer
         {
             get
             {
-                if (Settings.settingsStore.Settings.screenshotDirectory != "")
+                if (Server.serverSettings.Settings.screenshotDirectory != "")
                 {
-                    return Settings.settingsStore.Settings.screenshotDirectory;
+                    return Server.serverSettings.Settings.screenshotDirectory;
                 }
                 return Path.Combine(Server.universeDirectory, "Screenshots");
             }
@@ -29,10 +29,10 @@ namespace DarkMultiPlayerServer
             {
                 string cacheFile = Path.Combine(screenshotDirectory, screenshotFile + ".png");
                 //Check if the expireScreenshots setting is enabled
-                if (Settings.settingsStore.Settings.expireScreenshots > 0)
+                if (Server.serverSettings.Settings.expireScreenshots > 0)
                 {
                     //If the file is older than a day, delete it
-                    if (File.GetCreationTime(cacheFile).AddDays(Settings.settingsStore.Settings.expireScreenshots) < DateTime.Now)
+                    if (File.GetCreationTime(cacheFile).AddDays(Server.serverSettings.Settings.expireScreenshots) < DateTime.Now)
                     {
                         DarkLog.Debug("Deleting saved screenshot '" + screenshotFile + "', reason: Expired!");
                         try

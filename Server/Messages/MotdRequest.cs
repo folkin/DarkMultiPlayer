@@ -16,7 +16,7 @@ namespace DarkMultiPlayerServer.Messages
             ServerMessage newMessage = new ServerMessage();
             newMessage.type = ServerMessageType.MOTD_REPLY;
 
-            string newMotd = Settings.settingsStore.Settings.serverMotd;
+            string newMotd = Server.serverSettings.Settings.serverMotd;
             newMotd = newMotd.Replace("%name%", client.playerName);
             newMotd = newMotd.Replace(@"\n", Environment.NewLine);
 

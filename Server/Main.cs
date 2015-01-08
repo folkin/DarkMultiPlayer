@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Text;
 using DarkMultiPlayerCommon;
+using SettingsParser;
 
 namespace DarkMultiPlayerServer
 {
@@ -15,6 +16,8 @@ namespace DarkMultiPlayerServer
         public static bool serverRestarting;
         public static string universeDirectory;
         public static string configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config");
+        public static ConfigParser<SettingsStore> serverSettings = new ConfigParser<SettingsStore>(new SettingsStore(), Path.Combine(configDirectory, "Settings.txt"));
+        public static ConfigParser<GameplaySettingsStore> gameplaySettings;
         public static Stopwatch serverClock;
         public static HttpListener httpListener;
         private static long ctrlCTime;
@@ -62,10 +65,10 @@ namespace DarkMultiPlayerServer
                 BackwardsCompatibility.ConvertSettings();
 
                 //Register the server commands
-                CommandHandler.RegisterCommand("exit", Server.ShutDown, "Shuts down the server");
-                CommandHandler.RegisterCommand("quit", Server.ShutDown, "Shuts down the server");
-                CommandHandler.RegisterCommand("shutdown", Server.ShutDown, "Shuts down the server");
-                CommandHandler.RegisterCommand("restart", Server.Restart, "Restarts the server");
+                CommandHandler.RegisterCommand("exit", ShutDown, "Shuts down the server");
+                CommandHandler.RegisterCommand("quit", ShutDown, "Shuts down the server");
+                CommandHandler.RegisterCommand("shutdown", ShutDown, "Shuts down the server");
+                CommandHandler.RegisterCommand("restart", Restart, "Restarts the server");
                 CommandHandler.RegisterCommand("kick", KickCommand.KickPlayer, "Kicks a player from the server");
                 CommandHandler.RegisterCommand("ban", BanSystem.fetch.BanPlayer, "Bans a player from the server");
                 CommandHandler.RegisterCommand("banip", BanSystem.fetch.BanIP, "Bans an IP Address from the server");
@@ -85,14 +88,14 @@ namespace DarkMultiPlayerServer
 
                 if (System.Net.Sockets.Socket.OSSupportsIPv6)
                 {
-                    Settings.settingsStore.Settings.address = "::";
+                    serverSettings.Settings.address = "::";
                 }
 
                 DarkLog.Debug("Loading settings...");
-                Settings.settingsStore.LoadSettings();
+                serverSettings.LoadSettings();
 
                 //Test compression
-                if (Settings.settingsStore.Settings.compressionEnabled)
+                if (serverSettings.Settings.compressionEnabled)
                 {
                     long testTime = Compression.TestSysIOCompression();
                     Compression.compressionEnabled = true;
@@ -112,30 +115,29 @@ namespace DarkMultiPlayerServer
                     if (serverRestarting)
                     {
                         DarkLog.Debug("Reloading settings...");
-                        Settings.settingsStore.LoadSettings();
-                        if (Settings.settingsStore.Settings.gameDifficulty == GameDifficulty.CUSTOM)
+                        serverSettings.LoadSettings();
+                        if (serverSettings.Settings.gameDifficulty == GameDifficulty.CUSTOM)
                         {
                             DarkLog.Debug("Reloading gameplay settings...");
-                            GameplaySettings.settingsStore.LoadSettings();
+                            gameplaySettings.LoadSettings();
                         }
                     }
 
                     serverRestarting = false;
                     DarkLog.Normal("Starting DMPServer " + Common.PROGRAM_VERSION + ", protocol " + Common.PROTOCOL_VERSION);
 
-                    if (Settings.settingsStore.Settings.gameDifficulty == GameDifficulty.CUSTOM)
+                    if (serverSettings.Settings.gameDifficulty == GameDifficulty.CUSTOM)
                     {
                         //Generate the config file by accessing the object.
                         DarkLog.Debug("Loading gameplay settings...");
-                        GameplaySettings.settingsStore.LoadSettings();
+                        gameplaySettings.LoadSettings();
                     }
 
                     //Load universe
                     DarkLog.Normal("Loading universe... ");
                     CheckUniverse();
-                    DarkLog.Normal("Done!");
 
-                    DarkLog.Normal("Starting " + Settings.settingsStore.Settings.warpMode + " server on port " + Settings.settingsStore.Settings.port + "... ");
+                    DarkLog.Normal("Starting " + serverSettings.Settings.warpMode + " server on port " + serverSettings.Settings.port + "... ");
 
                     serverRunning = true;
                     Thread commandThread = new Thread(new ThreadStart(CommandHandler.ThreadMain));
@@ -146,10 +148,9 @@ namespace DarkMultiPlayerServer
                     {
                         Thread.Sleep(500);
                     }
-                    DarkLog.Normal("Done!");
 
                     StartHTTPServer();
-                    DarkLog.Normal("Done!");
+                    DarkLog.Normal("Ready!");
                     DMPPluginHandler.FireOnServerStart();
                     while (serverRunning)
                     {
@@ -244,13 +245,13 @@ namespace DarkMultiPlayerServer
             {
                 Directory.CreateDirectory(universeDirectory);
             }
-            if (!Directory.Exists(Path.Combine(Server.universeDirectory, "Crafts")))
+            if (!Directory.Exists(Path.Combine(universeDirectory, "Crafts")))
             {
-                Directory.CreateDirectory(Path.Combine(Server.universeDirectory, "Crafts"));
+                Directory.CreateDirectory(Path.Combine(universeDirectory, "Crafts"));
             }
-            if (!Directory.Exists(Path.Combine(Server.universeDirectory, "Flags")))
+            if (!Directory.Exists(Path.Combine(universeDirectory, "Flags")))
             {
-                Directory.CreateDirectory(Path.Combine(Server.universeDirectory, "Flags"));
+                Directory.CreateDirectory(Path.Combine(universeDirectory, "Flags"));
             }
             if (!Directory.Exists(Path.Combine(universeDirectory, "Players")))
             {
@@ -264,13 +265,13 @@ namespace DarkMultiPlayerServer
             {
                 Directory.CreateDirectory(Path.Combine(universeDirectory, "Vessels"));
             }
-            if (!Directory.Exists(Path.Combine(Server.universeDirectory, "Scenarios")))
+            if (!Directory.Exists(Path.Combine(universeDirectory, "Scenarios")))
             {
-                Directory.CreateDirectory(Path.Combine(Server.universeDirectory, "Scenarios"));
+                Directory.CreateDirectory(Path.Combine(universeDirectory, "Scenarios"));
             }
-            if (!Directory.Exists(Path.Combine(Server.universeDirectory, "Scenarios", "Initial")))
+            if (!Directory.Exists(Path.Combine(universeDirectory, "Scenarios", "Initial")))
             {
-                Directory.CreateDirectory(Path.Combine(Server.universeDirectory, "Scenarios", "Initial"));
+                Directory.CreateDirectory(Path.Combine(universeDirectory, "Scenarios", "Initial"));
             }
         }
         //Get mod file SHA
@@ -345,15 +346,15 @@ namespace DarkMultiPlayerServer
         private static void StartHTTPServer()
         {
             string OS = Environment.OSVersion.Platform.ToString();
-            if (Settings.settingsStore.Settings.httpPort > 0)
+            if (serverSettings.Settings.httpPort > 0)
             {
                 DarkLog.Normal("Starting HTTP server...");
                 httpListener = new HttpListener();
                 try
                 {
-                    if (Settings.settingsStore.Settings.address != "0.0.0.0" && Settings.settingsStore.Settings.address != "::")
+                    if (serverSettings.Settings.address != "0.0.0.0" && serverSettings.Settings.address != "::")
                     {
-                        string listenAddress = Settings.settingsStore.Settings.address;
+                        string listenAddress = serverSettings.Settings.address;
                         if (listenAddress.Contains(":"))
                         {
                             //Sorry
@@ -363,11 +364,11 @@ namespace DarkMultiPlayerServer
 
                         }
 
-                        httpListener.Prefixes.Add("http://" + listenAddress + ":" + Settings.settingsStore.Settings.httpPort + '/');
+                        httpListener.Prefixes.Add("http://" + listenAddress + ":" + serverSettings.Settings.httpPort + '/');
                     }
                     else
                     {
-                        httpListener.Prefixes.Add("http://*:" + Settings.settingsStore.Settings.httpPort + '/');
+                        httpListener.Prefixes.Add("http://*:" + serverSettings.Settings.httpPort + '/');
                     }
                     httpListener.Start();
                     httpListener.BeginGetContext(asyncHTTPCallback, httpListener);
@@ -381,7 +382,7 @@ namespace DarkMultiPlayerServer
                             DarkLog.Debug("HTTP Server: access denied.");
                             DarkLog.Debug("Prompting user to switch to administrator mode.");
 
-                            ProcessStartInfo startInfo = new ProcessStartInfo("DMPServer.exe") { Verb = "runas" };
+                            ProcessStartInfo startInfo = new ProcessStartInfo("DMPexe") { Verb = "runas" };
                             Process.Start(startInfo);
 
                             Environment.Exit(0);
@@ -398,7 +399,7 @@ namespace DarkMultiPlayerServer
 
         private static void StopHTTPServer()
         {
-            if (Settings.settingsStore.Settings.httpPort > 0)
+            if (serverSettings.Settings.httpPort > 0)
             {
                 DarkLog.Normal("Stopping HTTP server...");
                 httpListener.Stop();
@@ -407,7 +408,7 @@ namespace DarkMultiPlayerServer
 
         private static void ForceStopHTTPServer()
         {
-            if (Settings.settingsStore.Settings.httpPort > 0)
+            if (serverSettings.Settings.httpPort > 0)
             {
                 DarkLog.Normal("Force stopping HTTP server...");
                 if (httpListener != null)
@@ -446,7 +447,7 @@ namespace DarkMultiPlayerServer
                 }
                 if (!handled)
                 {
-                    responseText = new ServerInfo(Settings.settingsStore.Settings).GetJSON();
+                    responseText = new ServerInfo(serverSettings.Settings).GetJSON();
                 }
 
                 byte[] buffer = Encoding.UTF8.GetBytes(responseText);
@@ -459,7 +460,7 @@ namespace DarkMultiPlayerServer
             catch (Exception e)
             {
                 //Ignore the EngGetContext throw while shutting down the HTTP server.
-                if (Server.serverRunning)
+                if (serverRunning)
                 {
                     DarkLog.Error("Exception while listening to HTTP server!, Exception:\n" + e);
                     Thread.Sleep(1000);

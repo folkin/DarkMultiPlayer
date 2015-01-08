@@ -8,14 +8,6 @@ using SettingsParser;
 
 namespace DarkMultiPlayerServer
 {
-    public class GameplaySettings
-    {
-        private const string SETTINGS_FILE_NAME = "gameplaysettings.txt";
-        private static string settingsFile = Path.Combine(Server.configDirectory, SETTINGS_FILE_NAME);
-
-        public static ConfigParser<GameplaySettingsStore> settingsStore = new ConfigParser<GameplaySettingsStore>(new GameplaySettingsStore(), settingsFile);
-    }
-
     public class GameplaySettingsStore
     {
         [Description("Allow Stock Vessels")]

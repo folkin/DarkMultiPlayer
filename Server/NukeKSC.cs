@@ -72,10 +72,10 @@ namespace DarkMultiPlayerServer
         public static void CheckTimer()
         {
             //0 or less is disabled.
-            if (Settings.settingsStore.Settings.autoNuke > 0)
+            if (Server.serverSettings.Settings.autoNuke > 0)
             {
                 //Run it on server start or if the nuke time has elapsed.
-                if (((Server.serverClock.ElapsedMilliseconds - lastNukeTime) > (Settings.settingsStore.Settings.autoNuke * 60 * 1000)) || lastNukeTime == 0)
+                if (((Server.serverClock.ElapsedMilliseconds - lastNukeTime) > (Server.serverSettings.Settings.autoNuke * 60 * 1000)) || lastNukeTime == 0)
                 {
                     lastNukeTime = Server.serverClock.ElapsedMilliseconds;
                     RunNukeKSC("");
