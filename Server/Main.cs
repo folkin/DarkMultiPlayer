@@ -61,8 +61,14 @@ namespace DarkMultiPlayerServer
                     Directory.CreateDirectory(configDirectory);
                 }
 
+                string oldSettingsFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DMPServerSettings.txt");
+                string newSettingsFile = Path.Combine(Server.configDirectory, "Settings.txt");
+                string oldGameplayFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DMPGameplaySettings.txt");
+                string newGameplayFile = Path.Combine(Server.configDirectory, "GameplaySettings.txt");
+
                 // Run the conversion
-                BackwardsCompatibility.ConvertSettings();
+                BackwardsCompatibility.ConvertSettings(oldSettingsFile, newSettingsFile);
+                BackwardsCompatibility.ConvertSettings(oldGameplayFile, newGameplayFile);
 
                 //Register the server commands
                 CommandHandler.RegisterCommand("exit", ShutDown, "Shuts down the server");
@@ -93,6 +99,10 @@ namespace DarkMultiPlayerServer
 
                 DarkLog.Debug("Loading settings...");
                 serverSettings.LoadSettings();
+                if (serverSettings.Settings.gameDifficulty == GameDifficulty.CUSTOM)
+                {
+                    gameplaySettings = new ConfigParser<GameplaySettingsStore>(new GameplaySettingsStore(), Path.Combine(configDirectory, "GameplaySettings.txt"));
+                }
 
                 //Test compression
                 if (serverSettings.Settings.compressionEnabled)

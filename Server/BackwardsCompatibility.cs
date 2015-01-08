@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Reflection;
 
 namespace DarkMultiPlayerServer
 {
@@ -72,19 +71,16 @@ namespace DarkMultiPlayerServer
             }
         }
 
-        public static void ConvertSettings()
+        public static void ConvertSettings(string oldSettings, string newSettings)
         {
-            string oldSettingsFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DMPServerSettings.txt");
-            string newSettingsFile = Path.Combine(Server.configDirectory, "Settings.txt");
-
-            if (!File.Exists(oldSettingsFile))
+            if (!File.Exists(oldSettings))
             {
                 return;
             }
 
-            using (StreamWriter sw = new StreamWriter(newSettingsFile))
+            using (StreamWriter sw = new StreamWriter(newSettings))
             {
-                using (StreamReader sr = new StreamReader(oldSettingsFile))
+                using (StreamReader sr = new StreamReader(oldSettings))
                 {
 
                     string currentLine;
@@ -100,7 +96,7 @@ namespace DarkMultiPlayerServer
                     }
                 }
             }
-            File.Delete(oldSettingsFile);
+            File.Delete(oldSettings);
             DarkLog.Debug("Converted settings to DMP v0.2.1.0 format");
         }
     }
