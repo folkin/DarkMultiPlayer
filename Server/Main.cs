@@ -58,6 +58,9 @@ namespace DarkMultiPlayerServer
                     Directory.CreateDirectory(configDirectory);
                 }
 
+                // Run the conversion
+                BackwardsCompatibility.ConvertSettings();
+
                 //Register the server commands
                 CommandHandler.RegisterCommand("exit", Server.ShutDown, "Shuts down the server");
                 CommandHandler.RegisterCommand("quit", Server.ShutDown, "Shuts down the server");
