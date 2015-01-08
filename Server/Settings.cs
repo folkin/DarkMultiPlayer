@@ -10,9 +10,8 @@ namespace DarkMultiPlayerServer
 {
     public class Settings
     {
-        private const string SETTINGS_FILE_NAME = "settings.txt";
+        private const string SETTINGS_FILE_NAME = "Settings.txt";
         private static string settingsFile = Path.Combine(Server.configDirectory, SETTINGS_FILE_NAME);
-
         public static ConfigParser<SettingsStore> settingsStore = new ConfigParser<SettingsStore>(new SettingsStore(), settingsFile);
     }
 
