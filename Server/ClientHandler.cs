@@ -32,7 +32,7 @@ namespace DarkMultiPlayerServer
                 Messages.WarpControl.Reset();
                 Messages.Chat.Reset();
                 Messages.ScreenshotLibrary.Reset();
-
+                
                 SetupTCPServer();
 
                 while (Server.serverRunning)
@@ -572,6 +572,9 @@ namespace DarkMultiPlayerServer
                         break;
                     case ClientMessageType.SCENARIO_DATA:
                         Messages.ScenarioData.HandleScenarioModuleData(client, message.data);
+                        break;
+                    case ClientMessageType.FUNDS_CHANGED:
+                        Messages.ResourceHandler.HandleFundsChanged(client, clients, message.data);
                         break;
                     case ClientMessageType.SYNC_TIME_REQUEST:
                         Messages.SyncTimeRequest.HandleSyncTimeRequest(client, message.data);

@@ -59,6 +59,14 @@ namespace DarkMultiPlayer
             }
         }
 
+        public static bool IgnoreFundsChanged = false;        
+        public void OnFundsChanged(double newValue, TransactionReasons reasons)
+        {
+            if (!IgnoreFundsChanged)
+                NetworkWorker.fetch.SendFundsChanged(newValue, reasons);
+        }
+
+
         public void Awake()
         {
             Profiler.DMPReferenceTime.Start();
@@ -113,6 +121,7 @@ namespace DarkMultiPlayer
                 {
                     showGUI = true;
                 });
+                GameEvents.OnFundsChanged.Add(new EventData<double, TransactionReasons>.OnEvent(this.OnFundsChanged));
             }
             FireResetEvent();
             HandleCommandLineArgs();

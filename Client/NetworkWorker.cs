@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using UnityEngine;
@@ -766,6 +767,9 @@ namespace DarkMultiPlayer
                     case ServerMessageType.SCENARIO_DATA:
                         HandleScenarioModuleData(message.data);
                         break;
+                    case ServerMessageType.FUNDS_CHANGED:
+                        HandleFundsChanged(message.data);
+                        break;
                     case ServerMessageType.KERBAL_REPLY:
                         HandleKerbalReply(message.data);
                         break;
@@ -1123,6 +1127,22 @@ namespace DarkMultiPlayer
                         ScreenMessages.PostScreenMessage("Scenario data has been lost for " + scenarioName[i], 5f, ScreenMessageStyle.UPPER_CENTER);
                     }
                 }
+            }
+        }
+
+        private void HandleFundsChanged(byte[] messageData)
+        {
+            using (MessageReader mr = new MessageReader(messageData))
+            {
+                double funds = mr.Read<double>();
+                int reason = mr.Read<int>();
+
+                Client.IgnoreFundsChanged = true;
+                //var psm = HighLogic.CurrentGame.scenarios.First(m => m.moduleName == Funding.Instance.name);
+                //var haveInstance = object.ReferenceEquals(psm.moduleRef, Funding.Instance);
+                DarkLog.Debug(string.Format("trying to set funds to {0}. calling AddFunds with {1}.", funds, funds - Funding.Instance.Funds));
+                Funding.Instance.AddFunds(funds - Funding.Instance.Funds, (TransactionReasons)reason);
+                Client.IgnoreFundsChanged = false;
             }
         }
 
@@ -1788,6 +1808,19 @@ namespace DarkMultiPlayer
             }
             DarkLog.Debug("Sending " + scenarioNames.Length + " scenario modules");
             QueueOutgoingMessage(newMessage, false);
+        }
+        public void SendFundsChanged(double funds, TransactionReasons reason)
+        {
+            ClientMessage newMessage = new ClientMessage();
+            newMessage.type = ClientMessageType.FUNDS_CHANGED;
+            using (MessageWriter mw = new MessageWriter())
+            {
+                mw.Write(funds);
+                mw.Write((int)reason);
+                newMessage.data = mw.GetMessageBytes();
+            }
+            DarkLog.Debug("Sending funds changed: " + funds);
+            QueueOutgoingMessage(newMessage, true);
         }
         //Called from vesselWorker
         public void SendKerbalProtoMessage(ProtoCrewMember kerbal)
