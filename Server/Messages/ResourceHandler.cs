@@ -23,5 +23,35 @@ namespace DarkMultiPlayerServer.Messages
                 }
             }
         }
+
+        public static void HandleScienceChanged(ClientObject client, System.Collections.ObjectModel.ReadOnlyCollection<ClientObject> clients, byte[] messageData)
+        {
+            foreach (var c in clients)
+            {
+                if (c != client)
+                {
+                    ServerMessage newMessage = new ServerMessage();
+                    newMessage.type = ServerMessageType.SCIENCE_CHANGED;
+                    newMessage.data = messageData;
+                    ClientHandler.SendToClient(c, newMessage, true);
+                    DarkLog.Debug("Sending Science changed to " + c.playerName);
+                }
+            }
+        }
+
+        public static void HandleReputationChanged(ClientObject client, System.Collections.ObjectModel.ReadOnlyCollection<ClientObject> clients, byte[] messageData)
+        {
+            foreach (var c in clients)
+            {
+                if (c != client)
+                {
+                    ServerMessage newMessage = new ServerMessage();
+                    newMessage.type = ServerMessageType.REPUTATION_CHANGED;
+                    newMessage.data = messageData;
+                    ClientHandler.SendToClient(c, newMessage, true);
+                    DarkLog.Debug("Sending Reputation changed to " + c.playerName);
+                }
+            }
+        }
     }
 }

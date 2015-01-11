@@ -59,13 +59,27 @@ namespace DarkMultiPlayer
             }
         }
 
-        public static bool IgnoreFundsChanged = false;        
+        public static bool IgnoreFundsChanged = false;       
         public void OnFundsChanged(double newValue, TransactionReasons reasons)
         {
             if (!IgnoreFundsChanged)
                 NetworkWorker.fetch.SendFundsChanged(newValue, reasons);
         }
 
+        public static bool IgnoreScienceChanged = false; 
+        public void OnScienceChanged(float newValue, TransactionReasons reasons)
+        {
+            if (!IgnoreScienceChanged)
+                NetworkWorker.fetch.SendScienceChanged(newValue, reasons);
+        }
+
+
+        public static bool IgnoreRepChanged = false;
+        public void OnRepChanged(float newValue, TransactionReasons reasons)
+        {
+            if (!IgnoreScienceChanged)
+                NetworkWorker.fetch.SendReputationChanged(newValue, reasons);
+        }
 
         public void Awake()
         {
@@ -122,6 +136,8 @@ namespace DarkMultiPlayer
                     showGUI = true;
                 });
                 GameEvents.OnFundsChanged.Add(new EventData<double, TransactionReasons>.OnEvent(this.OnFundsChanged));
+                GameEvents.OnScienceChanged.Add(new EventData<float, TransactionReasons>.OnEvent(this.OnScienceChanged));
+                GameEvents.OnReputationChanged.Add(new EventData<float, TransactionReasons>.OnEvent(this.OnRepChanged));
             }
             FireResetEvent();
             HandleCommandLineArgs();

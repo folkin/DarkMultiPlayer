@@ -770,6 +770,9 @@ namespace DarkMultiPlayer
                     case ServerMessageType.FUNDS_CHANGED:
                         HandleFundsChanged(message.data);
                         break;
+                    case ServerMessageType.SCIENCE_CHANGED:
+                        HandleScienceChanged(message.data);
+                        break;
                     case ServerMessageType.KERBAL_REPLY:
                         HandleKerbalReply(message.data);
                         break;
@@ -1138,11 +1141,40 @@ namespace DarkMultiPlayer
                 int reason = mr.Read<int>();
 
                 Client.IgnoreFundsChanged = true;
-                //var psm = HighLogic.CurrentGame.scenarios.First(m => m.moduleName == Funding.Instance.name);
-                //var haveInstance = object.ReferenceEquals(psm.moduleRef, Funding.Instance);
                 DarkLog.Debug(string.Format("trying to set funds to {0}. calling AddFunds with {1}.", funds, funds - Funding.Instance.Funds));
                 Funding.Instance.AddFunds(funds - Funding.Instance.Funds, (TransactionReasons)reason);
                 Client.IgnoreFundsChanged = false;
+            }
+        }
+
+        private void HandleScienceChanged(byte[] messageData)
+        {
+            using (MessageReader mr = new MessageReader(messageData))
+            {
+                float science = mr.Read<float>();
+                int reason = mr.Read<int>();
+
+                Client.IgnoreScienceChanged = true;
+                var scienceDelta = science - ResearchAndDevelopment.Instance.Science;
+                DarkLog.Debug(string.Format("trying to set science to {0}. calling AddScience with {1}.", science, scienceDelta));
+                ResearchAndDevelopment.Instance.AddScience(scienceDelta, (TransactionReasons)reason);
+                //TODO: make call to ScenarioWorker.LoadScenarioDataIntoGame() to update which research was performed by other users...
+                Client.IgnoreScienceChanged = false;
+            }
+        }
+
+        private void HandleReputationChanged(byte[] messageData)
+        {
+            using (MessageReader mr = new MessageReader(messageData))
+            {
+                float reputation = mr.Read<float>();
+                int reason = mr.Read<int>();
+
+                Client.IgnoreRepChanged = true;
+                var repDelta = reputation - Reputation.Instance.reputation;
+                DarkLog.Debug(string.Format("trying to set science to {0}. calling AddReputation with {1}.", reputation, repDelta));
+                Reputation.Instance.AddReputation(repDelta, (TransactionReasons)reason);
+                Client.IgnoreRepChanged = false;
             }
         }
 
@@ -1820,6 +1852,32 @@ namespace DarkMultiPlayer
                 newMessage.data = mw.GetMessageBytes();
             }
             DarkLog.Debug("Sending funds changed: " + funds);
+            QueueOutgoingMessage(newMessage, true);
+        }
+        public void SendScienceChanged(float science, TransactionReasons reason)
+        {
+            ClientMessage newMessage = new ClientMessage();
+            newMessage.type = ClientMessageType.SCIENCE_CHANGED;
+            using (MessageWriter mw = new MessageWriter())
+            {
+                mw.Write(science);
+                mw.Write((int)reason);
+                newMessage.data = mw.GetMessageBytes();
+            }
+            DarkLog.Debug("Sending science changed: " + science);
+            QueueOutgoingMessage(newMessage, true);
+        }
+        public void SendReputationChanged(float reputation, TransactionReasons reason)
+        {
+            ClientMessage newMessage = new ClientMessage();
+            newMessage.type = ClientMessageType.REPUTATION_CHANGED;
+            using (MessageWriter mw = new MessageWriter())
+            {
+                mw.Write(reputation);
+                mw.Write((int)reason);
+                newMessage.data = mw.GetMessageBytes();
+            }
+            DarkLog.Debug("Sending reputation changed: " + reputation);
             QueueOutgoingMessage(newMessage, true);
         }
         //Called from vesselWorker

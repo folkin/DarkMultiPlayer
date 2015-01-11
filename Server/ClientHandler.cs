@@ -576,6 +576,12 @@ namespace DarkMultiPlayerServer
                     case ClientMessageType.FUNDS_CHANGED:
                         Messages.ResourceHandler.HandleFundsChanged(client, clients, message.data);
                         break;
+                    case ClientMessageType.SCIENCE_CHANGED:
+                        Messages.ResourceHandler.HandleScienceChanged(client, clients, message.data);
+                        break;
+                    case ClientMessageType.REPUTATION_CHANGED:
+                        Messages.ResourceHandler.HandleReputationChanged(client, clients, message.data);
+                        break;
                     case ClientMessageType.SYNC_TIME_REQUEST:
                         Messages.SyncTimeRequest.HandleSyncTimeRequest(client, message.data);
                         break;
