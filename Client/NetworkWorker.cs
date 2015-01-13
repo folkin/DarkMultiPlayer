@@ -1158,7 +1158,7 @@ namespace DarkMultiPlayer
                 var scienceDelta = science - ResearchAndDevelopment.Instance.Science;
                 DarkLog.Debug(string.Format("trying to set science to {0}. calling AddScience with {1}.", science, scienceDelta));
                 ResearchAndDevelopment.Instance.AddScience(scienceDelta, (TransactionReasons)reason);
-                //TODO: make call to ScenarioWorker.LoadScenarioDataIntoGame() to update which research was performed by other users...
+                //TODO: update which research was performed by other users...
                 Client.IgnoreScienceChanged = false;
             }
         }

@@ -232,6 +232,26 @@ namespace DarkMultiPlayer
             GUILayout.EndScrollView();
             GUILayout.FlexibleSpace();
             GUILayout.BeginHorizontal();
+            if(GUILayout.Button("Rervert to Luanch", buttonStyle))
+            {
+                Settings.fetch.revertEnabled = true;
+                FlightDriver.RevertToLaunch();
+                //TODO: add revert scenarios logic
+                ScreenMessages.PostScreenMessage("You clicked 'Revert to Launch'!", 5f, ScreenMessageStyle.UPPER_CENTER);
+                Settings.fetch.revertEnabled = false;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Rervert to VAB", buttonStyle))
+            {
+                Settings.fetch.revertEnabled = true;
+                FlightDriver.RevertToPrelaunch(EditorFacility.VAB);
+                //TODO: add revert scenarios logic
+                ScreenMessages.PostScreenMessage("You clicked 'Revert to VAB'!", 5f, ScreenMessageStyle.UPPER_CENTER);
+                Settings.fetch.revertEnabled = false;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
             if (GUILayout.Button("Disconnect", buttonStyle))
             {
                 disconnectEventHandled = false;
